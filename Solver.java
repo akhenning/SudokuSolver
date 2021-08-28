@@ -17,7 +17,7 @@ public class Solver {
 	 */
 
 	public static Cell board[][];
-	public static final int MAX_ITERATIONS = 1;
+	public static final int MAX_ITERATIONS = 10;
 
 	public static void main(String[] args) {
 
@@ -58,11 +58,10 @@ public class Solver {
 				current += "\n";
 			}
 			c+=1;
+			System.out.println(current);
 		}
-
-		System.out.println(current);
-		if (c>=5) {
-			System.out.println("Emergency quit.");
+		if (c>=MAX_ITERATIONS) {
+			System.out.println("Emergency quit after "+c+" iterations.");
 		} else {
 			System.out.println("Exited properly due to stagnation after "+c+" iterations.");
 		}
@@ -82,71 +81,12 @@ public class Solver {
 		check();
 	}
 
+	// Checks for hidden and naked pairs
 	public static void pairs_all() {
-		ArrayList<Cell> pairsTracker = new ArrayList<Cell>();
-		ArrayList<Integer> locationTracker = new ArrayList<Integer>();
-		for (int i = 0; i < 9; i+=1) {
-			// 1: direction. 0=i, 1=j, -1=box.
-			// 2: relevant i or j
-			// 3: if box, relevant j
-	
-			// these would be faster as arrays
-			ArrayList<Cell> pairsi = new ArrayList<Cell>();
-			ArrayList<Cell> pairsj = new ArrayList<Cell>();
-			for (int i2 = 0; i2 < 9; i2+=1) {
-				if (board[i2][i].length() == 2) {
-					//System.out.println(board[i2][j].get());
-					if (pairsi.contains(board[i2][i])) {
-						System.out.println("Found pair on column! "+board[i2][i].toString());
-						pairsTracker.add(board[i2][i]);
-						locationTracker.add(0);
-						locationTracker.add(i);
-						locationTracker.add(-1);
-					}
-					pairsi.add(board[i2][i]);
-				}
-				if (board[i][i2].length() == 2) {
-					//System.out.println(board[i][i2].get());
-					if (pairsj.contains(board[i][i2])) {
-						System.out.println("Found pair on row! "+board[i][i2].toString());
-						pairsTracker.add(board[i][i2]);
-						locationTracker.add(1);
-						locationTracker.add(i);
-						locationTracker.add(-1);
-					}
-					pairsj.add(board[i][i2]);
-					//System.out.println("Found a "+(board[i][i2].get()) + " on the j axis");
-				}
-			}
-		}
-		
-		for (int box_i = 0; box_i<3;box_i+=1) {
-			for (int box_j = 0; box_j<3;box_j+=1) {
-				ArrayList<Cell> pairsb = new ArrayList<Cell>();
-				for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
-					for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
-						//System.out.println(i3+", "+j3);
-						if (board[i3][j3].length() == 2) {
-							if (pairsb.contains(board[i3][j3])) {
-								System.out.println("Found pair in box! "+board[i3][j3].toString());
-								pairsTracker.add(board[i3][j3]);
-								locationTracker.add(-1);
-								locationTracker.add(box_i);
-								locationTracker.add(box_j);
-							}
-							pairsb.add(board[i3][j3]);
-						}
-					}
-				}
-			}
-		}
-		for (int k = 0; k < pairsTracker.size();k+=1) {
-			remove_values(pairsTracker.get(k),locationTracker.get(3*k),locationTracker.get(3*k+1),locationTracker.get(3*k+2));
-		}
-
 		// -------- hidden pairs now
-
-
+		
+		ArrayList<int[]> hiddenPairsTracker = new ArrayList<int[]>();
+		ArrayList<Integer> locationTracker = new ArrayList<Integer>();
 		for (int i = 0; i < 9; i+=1) {
 			int[] occurancesi = {0,0,0,0,0,0,0,0,0};
 			int[] occurancesj = {0,0,0,0,0,0,0,0,0};
@@ -181,6 +121,16 @@ public class Solver {
 
 					if (together_twice == 2) {
 						real_hidden_pairs.add(pair);
+						hiddenPairsTracker.add(pair);
+						locationTracker.add(0);
+						locationTracker.add(i);
+						locationTracker.add(-1);
+						
+						for (int i2 = 0; i2 < 9; i2+=1) {
+							if (board[i2][i].containsPair(pair)){
+								board[i2][i].set(pair);
+							}
+						}
 					}
 				}
 			}
@@ -213,6 +163,17 @@ public class Solver {
 					}
 					if (together_twice == 2) {
 						real_hidden_pairs.add(pair);
+						hiddenPairsTracker.add(pair);
+						locationTracker.add(1);
+						locationTracker.add(i);
+						locationTracker.add(-1);
+						
+						for (int i2 = 0; i2 < 9; i2+=1) {
+							if (board[i][i2].containsPair(pair)){
+								//System.out.println("Row: Overwriting "+board[i][i2]+" with "+Arrays.toString(pair));
+								board[i][i2].set(pair);
+							}
+						}
 					}
 				}
 			}
@@ -227,6 +188,13 @@ public class Solver {
 
 		}
 		
+		for (int k = 0; k < hiddenPairsTracker.size();k+=1) {
+			remove_values(hiddenPairsTracker.get(k),locationTracker.get(3*k),locationTracker.get(3*k+1),locationTracker.get(3*k+2));
+		}
+
+		
+		hiddenPairsTracker = new ArrayList<int[]>();
+		locationTracker = new ArrayList<Integer>();
 		for (int box_i = 0; box_i<3;box_i+=1) {
 			for (int box_j = 0; box_j<3;box_j+=1) {
 				int[] occurancesb = {0,0,0,0,0,0,0,0,0};
@@ -258,6 +226,19 @@ public class Solver {
 						}
 						if (together_twice == 2) {
 							real_hidden_pairs.add(pair);
+							hiddenPairsTracker.add(pair);
+							locationTracker.add(-1);
+							locationTracker.add(box_i);
+							locationTracker.add(box_j);
+							
+							for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
+								for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
+									if (board[i3][j3].containsPair(pair)){
+										//System.out.println("Box: Overwriting "+board[i3][j3]+" with "+Arrays.toString(pair));
+										board[i3][j3].set(pair);
+									}
+								}
+							}
 						}
 					}
 				}
@@ -270,16 +251,88 @@ public class Solver {
 				}
 			}
 		}
+		for (int k = 0; k < hiddenPairsTracker.size();k+=1) {
+			remove_values(hiddenPairsTracker.get(k),locationTracker.get(3*k),locationTracker.get(3*k+1),locationTracker.get(3*k+2));
+		}
+
+		// Naked pairs check now
+
+
+		ArrayList<Cell> pairsTracker = new ArrayList<Cell>();
+		locationTracker = new ArrayList<Integer>();
+		for (int i = 0; i < 9; i+=1) {
+			// 1: direction. 0=i, 1=j, -1=box.
+			// 2: relevant i or j
+			// 3: if box, relevant j
+	
+			// these would be faster as arrays
+			ArrayList<Cell> pairsi = new ArrayList<Cell>();
+			ArrayList<Cell> pairsj = new ArrayList<Cell>();
+			for (int i2 = 0; i2 < 9; i2+=1) {
+				if (board[i2][i].length() == 2) {
+					//System.out.println(board[i2][j].get());
+					if (pairsi.contains(board[i2][i])) {
+						//System.out.println("Found naked pair on column! "+board[i2][i].toString());
+						pairsTracker.add(board[i2][i]);
+						locationTracker.add(0);
+						locationTracker.add(i);
+						locationTracker.add(-1);
+					}
+					pairsi.add(board[i2][i]);
+				}
+				if (board[i][i2].length() == 2) {
+					//System.out.println(board[i][i2].get());
+					if (pairsj.contains(board[i][i2])) {
+						//System.out.println("Found naked pair on row! "+board[i][i2].toString());
+						pairsTracker.add(board[i][i2]);
+						locationTracker.add(1);
+						locationTracker.add(i);
+						locationTracker.add(-1);
+					}
+					pairsj.add(board[i][i2]);
+					//System.out.println("Found a "+(board[i][i2].get()) + " on the j axis");
+				}
+			}
+		}
+		
+		for (int box_i = 0; box_i<3;box_i+=1) {
+			for (int box_j = 0; box_j<3;box_j+=1) {
+				ArrayList<Cell> pairsb = new ArrayList<Cell>();
+				for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
+					for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
+						//System.out.println(i3+", "+j3);
+						if (board[i3][j3].length() == 2) {
+							if (pairsb.contains(board[i3][j3])) {
+								//System.out.println("Found naked pair in box! "+board[i3][j3].toString());
+								pairsTracker.add(board[i3][j3]);
+								locationTracker.add(-1);
+								locationTracker.add(box_i);
+								locationTracker.add(box_j);
+							}
+							pairsb.add(board[i3][j3]);
+						}
+					}
+				}
+			}
+		}
+		for (int k = 0; k < pairsTracker.size();k+=1) {
+			remove_values(pairsTracker.get(k),locationTracker.get(3*k),locationTracker.get(3*k+1),locationTracker.get(3*k+2));
+		}
+
 
 
 		System.out.println("Finishing pair search");
 	}
 
 
+	public static void remove_values(int[] toRemove, int type, int i, int j) {
+		remove_values(new Cell(toRemove),type,i,j);
+	}
 
+	// Removes all elements in toRemove from every non-identical cell in the designated area
     public static void remove_values(Cell toRemove, int type, int i, int j) {
 		if(type == -1) {
-			System.out.println("Removing "+toRemove.toString()+" at box: "+i+", "+j);
+			//System.out.println("Removing "+toRemove.toString()+" at box: "+i+", "+j);
 			for (int i3 = i*3; i3 < i*3+3; i3+=1) {
 				for (int j3 =  j*3; j3 < j*3+3; j3+=1) {
 					//System.out.println("Checking: "+board[i3][j3]);
@@ -289,7 +342,7 @@ public class Solver {
 				}
 			}
 		} else if (type == 0) {
-			System.out.println("Removing "+toRemove.toString()+" at column: "+i);
+			//System.out.println("Removing "+toRemove.toString()+" at column: "+i);
 			for (int i2 = 0; i2 < 9; i2+=1) {
 				if (!board[i2][i].equals(toRemove) && board[i2][i].length() > 1) {
 					//System.out.println("Removing "+board[i2][i].toString());
@@ -297,7 +350,7 @@ public class Solver {
 				}
 			}
 		} else {
-			System.out.println("Removing "+toRemove.toString()+" at row: "+i);
+			//System.out.println("Removing "+toRemove.toString()+" at row: "+i);
 			for (int i2 = 0; i2 < 9; i2+=1) {
 				if (!board[i][i2].equals(toRemove) && board[i][i2].length() > 1) {
 					board[i][i2].remove(toRemove);

@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+//import java.util.Arrays;
 
 public class Cell {
     public ArrayList<Integer> possibilities;
     public Cell(int[] start) {
         possibilities = new ArrayList<Integer>();
-        if (start.length != 0) {
-            possibilities.add(start[0]);
+        for (int i:start) {
+            possibilities.add(i);
         }
     }
     public int length() {
@@ -37,6 +38,13 @@ public class Cell {
         return s;
     }
 
+    public void set(int[] start) {
+        possibilities = new ArrayList<Integer>();
+        for (int i:start) {
+            possibilities.add(i);
+        }
+    }
+
     public boolean equals(Cell c) {
         return possibilities.equals(c.possibilities);
     }
@@ -63,6 +71,8 @@ public class Cell {
             System.out.println("Error: ContainsPair undefined usage");
             return false;
         }
+        //System.out.println("Comparing "+Arrays.toString(check)+" and "+possibilities.toString());
+        //System.out.println("Result: "+possibilities.contains(check[0])+" and "+ possibilities.contains(check[1]));
         return possibilities.contains(check[0]) && possibilities.contains(check[1]);
     }
 }
