@@ -54,7 +54,7 @@ public class Cell {
 
     // For all elements of C, remove them from possibilities
     public void remove(Cell c) {
-        //System.out.println("Removing: "+possibilities.toString());
+        //System.out.println("Removing: "+c.possibilities.toString()+" from "+possibilities.toString());
         for (Integer i : c.possibilities) {
             //System.out.println("Removing number " +i);
             int index = possibilities.indexOf(i);

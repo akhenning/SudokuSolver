@@ -21,10 +21,6 @@ public class Solver {
 
 	public static void main(String[] args) {
 
-		String last = "last";
-		String current = "";
-		int c = 0;
-
 		board = new Cell[9][9];
 		int[][][]all =  {
 		{{7},{6},{ },{ },{ },{2},{ },{ },{8}},
@@ -42,21 +38,46 @@ public class Solver {
 				board[i][j] = new Cell(all[i][j]);
 			}
 		}
+		try {
+			start();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		//int[] cheat = {2};
+		//board[7][7].set(cheat);
+		//start();
+	}
 
+public static String printStr() {
+	String current = "";
+	for (int i=0;i<9;i+=1) {
+		current += "  ";
+		for (int j=0;j<9;j+=1) {
+			current += board[i][j].toString() + "| ";
+		}
+		current += "\n";
+	}
+	return current;
+}
+	
+public static void start() throws Exception {
+	
+		String last = "last";
+		String current = "";
+		int c = 0;
 		while (c < MAX_ITERATIONS && !last.equals(current)) {
 			last = current;
 			simple_all();
-			simple_all();
+			//current = printStr();
+			//System.out.println(current);
 			simple_all();
 			pairs_all();
-			current = "";
-			for (int i=0;i<9;i+=1) {
-				current += "  ";
-				for (int j=0;j<9;j+=1) {
-					current += board[i][j].toString() + "| ";
-				}
-				current += "\n";
-			}
+			//current = printStr();
+			//System.out.println(current);
+			simple_all();
+			simple_all();
+			simple_fill();
+			current = printStr();
 			c+=1;
 			System.out.println(current);
 		}
@@ -66,23 +87,93 @@ public class Solver {
 			System.out.println("Exited properly due to stagnation after "+c+" iterations.");
 		}
 
-
-
-
-		
-		/**for (int i=0;i<9;i+=1) {
-			System.out.print("  ");
-			for (int j=0;j<9;j+=1) {
-				System.out.print(board[i][j].toString() + "| ");
-			}
-			System.out.println();
-		}*/
-
 		check();
+	}
+
+	public static void simple_fill() {
+		System.out.println("Checking for lone values");
+		for (int i = 0; i < 9; i+=1) {
+			int[] occurancesi = {0,0,0,0,0,0,0,0,0};
+			for (int i2 = 0; i2 < 9; i2+=1) {
+				if (board[i2][i].length() > 1) {
+					for (int elm : board[i2][i].possibilities) {
+						occurancesi[elm-1]+=1;
+					}
+				}
+			}
+			
+			ArrayList<Integer> lone_values = new ArrayList<Integer>();
+			for (int k = 0; k < 9; k += 1) {
+				if (occurancesi[k] == 1) {
+					lone_values.add(k+1);
+				}
+			}
+			if (lone_values.size() > 0) {
+				System.out.println("Detected lone value(s) in column "+i+": "+lone_values.toString());
+			}
+			for (int lone:lone_values) {
+				for (int i2 = 0; i2 < 9; i2+=1) {
+					if (board[i2][i].possibilities.contains(lone)){
+						System.out.println("Lone Column: Overwriting "+board[i2][i]+" with "+lone);
+						if (board[i2][i].length() == 1) {
+							System.out.println("ERROR");
+							//continue;
+						}
+						int[] temp = {lone};
+						board[i2][i].set(temp);
+						remove_values(temp,1,i2,-1);
+						//break;
+						return;
+					}
+				}
+			}
+
+			
+			//String current = "Halfway: \n"+printStr();
+			//System.out.println(current);
+			
+			int[] occurancesj = {0,0,0,0,0,0,0,0,0};
+			for (int i2 = 0; i2 < 9; i2+=1) {
+				if (board[i][i2].length() > 1) {
+					for (int elm : board[i][i2].possibilities) {
+						occurancesj[elm-1]+=1;
+					}
+				}
+			}
+
+			lone_values = new ArrayList<Integer>();
+			for (int k = 0; k < 9; k += 1) {
+				if (occurancesj[k] == 1) {
+					lone_values.add(k+1);
+				}
+			}
+			if (lone_values.size() > 0) {
+				System.out.println("Detected lone value(s) in row "+i+": "+lone_values.toString());
+			}
+			for (int lone:lone_values) {
+				for (int i2 = 0; i2 < 9; i2+=1) {
+					if (board[i][i2].possibilities.contains(lone)){
+						System.out.println("Lone Row: Overwriting "+board[i][i2]+" with "+lone);
+						int[] temp = {lone};
+						if (board[i][i2].length() == 1) {
+							System.out.println("ERROR");
+							//System.out.println(Arrays.toString(occurancesj));
+							//continue;
+						}
+						
+						board[i][i2].set(temp);
+						remove_values(temp,0,i2,-1);
+						//break;
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	// Checks for hidden and naked pairs
 	public static void pairs_all() {
+		System.out.println("Checking for hidden and naked pairs");
 		// -------- hidden pairs now
 		
 		ArrayList<int[]> hiddenPairsTracker = new ArrayList<int[]>();
@@ -105,6 +196,7 @@ public class Solver {
 					pairs.add(k+1);
 				}
 			}
+			//System.out.println(Arrays.toString(occurancesi));
 			//if (pairs.size()>1) {
 			//	System.out.println("Found some pairs along column: "+i+". "+pairs.toString());
 			//}
@@ -128,6 +220,7 @@ public class Solver {
 						
 						for (int i2 = 0; i2 < 9; i2+=1) {
 							if (board[i2][i].containsPair(pair)){
+								System.out.println("Column: Overwriting "+board[i2][i]+" with "+Arrays.toString(pair));
 								board[i2][i].set(pair);
 							}
 						}
@@ -170,7 +263,7 @@ public class Solver {
 						
 						for (int i2 = 0; i2 < 9; i2+=1) {
 							if (board[i][i2].containsPair(pair)){
-								//System.out.println("Row: Overwriting "+board[i][i2]+" with "+Arrays.toString(pair));
+								System.out.println("Row: Overwriting "+board[i][i2]+" with "+Arrays.toString(pair));
 								board[i][i2].set(pair);
 							}
 						}
@@ -234,7 +327,7 @@ public class Solver {
 							for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
 								for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
 									if (board[i3][j3].containsPair(pair)){
-										//System.out.println("Box: Overwriting "+board[i3][j3]+" with "+Arrays.toString(pair));
+										System.out.println("Box: Overwriting "+board[i3][j3]+" with "+Arrays.toString(pair));
 										board[i3][j3].set(pair);
 									}
 								}
@@ -270,16 +363,20 @@ public class Solver {
 			ArrayList<Cell> pairsj = new ArrayList<Cell>();
 			for (int i2 = 0; i2 < 9; i2+=1) {
 				if (board[i2][i].length() == 2) {
-					//System.out.println(board[i2][j].get());
+					//if (i==5){
+					//	System.out.println(board[i2][i]+ " ");
+					//}
 					if (pairsi.contains(board[i2][i])) {
-						//System.out.println("Found naked pair on column! "+board[i2][i].toString());
+						System.out.println("Found naked pair on column "+i+"! "+board[i2][i].toString());
 						pairsTracker.add(board[i2][i]);
 						locationTracker.add(0);
 						locationTracker.add(i);
 						locationTracker.add(-1);
 					}
 					pairsi.add(board[i2][i]);
-				}
+				}// else if (i==5) {
+				//	System.out.println(board[i2][i]+ " does not have length two; has"+board[i2][i].length());
+				//}
 				if (board[i][i2].length() == 2) {
 					//System.out.println(board[i][i2].get());
 					if (pairsj.contains(board[i][i2])) {
@@ -293,6 +390,7 @@ public class Solver {
 					//System.out.println("Found a "+(board[i][i2].get()) + " on the j axis");
 				}
 			}
+			//System.out.println(pairsi.toString());
 		}
 		
 		for (int box_i = 0; box_i<3;box_i+=1) {
@@ -359,7 +457,8 @@ public class Solver {
 		}
 	}
 
-    public static void simple_all() {
+    public static void simple_all() throws Exception {
+		System.out.println("Using basic scan strategy");
 		for (int i = 0; i < 9; i+=1) {
 			for (int j = 0; j < 9; j+=1) {
 				if (board[i][j].length() != 1) {
@@ -369,7 +468,7 @@ public class Solver {
 		}
 	}
 
-	public static void simple_deduction(int i, int j) {
+	public static void simple_deduction(int i, int j) throws Exception {
 		//System.out.println("Checking: "+i+", "+j);
 		boolean[] flags = {true,true,true,true,true,true,true,true,true};
 		for (int i2 = 0; i2 < 9; i2+=1) {
@@ -396,16 +495,24 @@ public class Solver {
 				}
 			}
 		}
-		board[i][j].clear();
+		int[] temp1 = {};
+		Cell temp = new Cell(temp1);
 		for (int i4 = 0; i4 < 9; i4+=1) {
 			if(flags[i4]) {
-				//System.out.println("Possible thing determined: "+i4);
-				board[i][j].add(i4+1);
+				temp.add(i4+1);
 			}
+		}
+		if (board[i][j].length() == 0 || board[i][j].length() >= temp.length()) {
+			board[i][j] = temp;
+		}
+		if (board[i][j].length() == 0) {
+			System.out.println("Error: output nothing in simple scan");
+			throw new Exception("Invalid output at "+i+", "+j);
 		}
 		//System.out.println("Result: "+board[i][j].toString());
 	}
 
+	// This is very poorly optomized, but it only runs once, so eeeh
 	public static boolean check() {
 		for (int i = 0; i < 9; i+=1) {
 			for (int j = 0; j < 9; j+=1) {
