@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Cell {
-    private ArrayList<Integer> possibilities;
+    public ArrayList<Integer> possibilities;
     public Cell(int[] start) {
         possibilities = new ArrayList<Integer>();
         if (start.length != 0) {
@@ -28,12 +28,33 @@ public class Cell {
         if (s.length() < 7) {
             s+="\t";
         }
-        if (s.length() > 10) {
-            s=s.substring(0,10)+"...";
+        if (s.length() > 12) {
+            s=s.substring(0,12)+"-";
         }
         if (s.length() != 7) {
             s+="\t";
         }
         return s;
+    }
+
+    public boolean equals(Cell c) {
+        return possibilities.equals(c.possibilities);
+    }
+    public boolean equals(Object o) {
+        return (equals((Cell)o));
+    }
+
+    // For all elements of C, remove them from possibilities
+    public void remove(Cell c) {
+        //System.out.println("Removing: "+possibilities.toString());
+        for (Integer i : c.possibilities) {
+            //System.out.println("Removing number " +i);
+            int index = possibilities.indexOf(i);
+            //System.out.println("index: " +index);
+            if (index != -1) {
+                possibilities.remove(index);
+            }
+        }
+        //System.out.println("Result: "+possibilities.toString());
     }
 }
