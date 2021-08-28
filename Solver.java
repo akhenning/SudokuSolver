@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 
 /**
  * 
@@ -108,17 +108,17 @@ public static void start() throws Exception {
 					lone_values.add(k+1);
 				}
 			}
-			if (lone_values.size() > 0) {
-				System.out.println("Detected lone value(s) in column "+i+": "+lone_values.toString());
-			}
+			//if (lone_values.size() > 0) {
+			//	System.out.println("Detected lone value(s) in column "+i+": "+lone_values.toString());
+			//}
 			for (int lone:lone_values) {
 				for (int i2 = 0; i2 < 9; i2+=1) {
 					if (board[i2][i].possibilities.contains(lone)){
-						System.out.println("Lone Column: Overwriting "+board[i2][i]+" with "+lone);
-						if (board[i2][i].length() == 1) {
-							System.out.println("ERROR");
+						//System.out.println("Lone Column: Overwriting "+board[i2][i]+" with "+lone);
+						//if (board[i2][i].length() == 1) {
+						//	System.out.println("ERROR");
 							//continue;
-						}
+						//}
 						int[] temp = {lone};
 						board[i2][i].set(temp);
 						remove_values(temp,1,i2,-1);
@@ -147,24 +147,71 @@ public static void start() throws Exception {
 					lone_values.add(k+1);
 				}
 			}
-			if (lone_values.size() > 0) {
-				System.out.println("Detected lone value(s) in row "+i+": "+lone_values.toString());
-			}
+			//if (lone_values.size() > 0) {
+			//	System.out.println("Detected lone value(s) in row "+i+": "+lone_values.toString());
+			//}
 			for (int lone:lone_values) {
 				for (int i2 = 0; i2 < 9; i2+=1) {
 					if (board[i][i2].possibilities.contains(lone)){
-						System.out.println("Lone Row: Overwriting "+board[i][i2]+" with "+lone);
+						//System.out.println("Lone Row: Overwriting "+board[i][i2]+" with "+lone);
 						int[] temp = {lone};
-						if (board[i][i2].length() == 1) {
-							System.out.println("ERROR");
+						//if (board[i][i2].length() == 1) {
+							//System.out.println("ERROR");
 							//System.out.println(Arrays.toString(occurancesj));
 							//continue;
-						}
+						//}
 						
 						board[i][i2].set(temp);
 						remove_values(temp,0,i2,-1);
 						//break;
 						return;
+					}
+				}
+			}
+		}
+
+		// This is completely untested
+		ArrayList<Integer> lone_values = new ArrayList<Integer>();
+		for (int box_i = 0; box_i<3;box_i+=1) {
+			for (int box_j = 0; box_j<3;box_j+=1) {
+				int[] occurancesb = {0,0,0,0,0,0,0,0,0};
+				for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
+					for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
+						if (board[i3][i3].length() > 1) {
+							for (int elm : board[i3][j3].possibilities) {
+								occurancesb[elm-1]+=1;
+							}
+						}
+					}
+				}
+
+				lone_values = new ArrayList<Integer>();
+				for (int k = 0; k < 9; k += 1) {
+					if (occurancesb[k] == 1) {
+						lone_values.add(k+1);
+					}
+				}
+				//if (lone_values.size() > 0) {
+				//	System.out.println("Detected lone value(s) in box "+box_i+", "+box_j+": "+lone_values.toString());
+				//}
+				for (int lone:lone_values) {
+					for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
+						for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
+							if (board[i3][i3].possibilities.contains(lone)){
+								//System.out.println("Lone Box: Overwriting "+board[i3][i3]+" with "+lone);
+								int[] temp = {lone};
+								//if (board[i][i2].length() == 1) {
+									//System.out.println("ERROR");
+									//System.out.println(Arrays.toString(occurancesj));
+									//continue;
+								//}
+								
+								board[i3][j3].set(temp);
+								remove_values(temp,-1,box_i,box_j);
+								//break;
+								return;
+							}
+						}
 					}
 				}
 			}
@@ -200,7 +247,7 @@ public static void start() throws Exception {
 			//if (pairs.size()>1) {
 			//	System.out.println("Found some pairs along column: "+i+". "+pairs.toString());
 			//}
-			ArrayList<int[]> real_hidden_pairs = new ArrayList<int[]>();
+			//ArrayList<int[]> real_hidden_pairs = new ArrayList<int[]>();
 			for (int k = 0; k < pairs.size(); k += 1) {
 				for (int l = k+1; l < pairs.size(); l += 1) {
 					int[] pair = {pairs.get(k),pairs.get(l)};
@@ -212,7 +259,7 @@ public static void start() throws Exception {
 					}
 
 					if (together_twice == 2) {
-						real_hidden_pairs.add(pair);
+						//real_hidden_pairs.add(pair);
 						hiddenPairsTracker.add(pair);
 						locationTracker.add(0);
 						locationTracker.add(i);
@@ -220,7 +267,7 @@ public static void start() throws Exception {
 						
 						for (int i2 = 0; i2 < 9; i2+=1) {
 							if (board[i2][i].containsPair(pair)){
-								System.out.println("Column: Overwriting "+board[i2][i]+" with "+Arrays.toString(pair));
+								//System.out.println("Column: Overwriting "+board[i2][i]+" with "+Arrays.toString(pair));
 								board[i2][i].set(pair);
 							}
 						}
@@ -228,16 +275,16 @@ public static void start() throws Exception {
 				}
 			}
 			
-			if (real_hidden_pairs.size() > 0) {
-				System.out.print("Following hiddenpairs are real for column "+i+": ");
-				for (int[] pr:real_hidden_pairs) {
-					System.out.print(Arrays.toString(pr));
-				}
-				System.out.println();
-			}
+			//if (real_hidden_pairs.size() > 0) {
+				//System.out.print("Following hiddenpairs are real for column "+i+": ");
+			//	for (int[] pr:real_hidden_pairs) {
+			//		System.out.print(Arrays.toString(pr));
+			//	}
+			//	System.out.println();
+			//}
 
 
-			real_hidden_pairs = new ArrayList<int[]>();
+			//real_hidden_pairs = new ArrayList<int[]>();
 			pairs = new ArrayList<Integer>();
 			for (int k = 0; k < 9; k += 1) {
 				if (occurancesj[k] == 2) {
@@ -255,7 +302,7 @@ public static void start() throws Exception {
 						}
 					}
 					if (together_twice == 2) {
-						real_hidden_pairs.add(pair);
+						//real_hidden_pairs.add(pair);
 						hiddenPairsTracker.add(pair);
 						locationTracker.add(1);
 						locationTracker.add(i);
@@ -263,7 +310,7 @@ public static void start() throws Exception {
 						
 						for (int i2 = 0; i2 < 9; i2+=1) {
 							if (board[i][i2].containsPair(pair)){
-								System.out.println("Row: Overwriting "+board[i][i2]+" with "+Arrays.toString(pair));
+								//System.out.println("Row: Overwriting "+board[i][i2]+" with "+Arrays.toString(pair));
 								board[i][i2].set(pair);
 							}
 						}
@@ -271,13 +318,13 @@ public static void start() throws Exception {
 				}
 			}
 			
-			if (real_hidden_pairs.size() > 0) {
-				System.out.print("Following hiddenpairs are real for row "+i+": ");
-				for (int[] pr:real_hidden_pairs) {
-					System.out.print(Arrays.toString(pr));
-				}
-				System.out.println();
-			}
+			//if (real_hidden_pairs.size() > 0) {
+			//	System.out.print("Following hiddenpairs are real for row "+i+": ");
+			//	for (int[] pr:real_hidden_pairs) {
+			//		System.out.print(Arrays.toString(pr));
+			//	}
+			//	System.out.println();
+			//}
 
 		}
 		
@@ -299,7 +346,7 @@ public static void start() throws Exception {
 					}
 				}
 				
-				ArrayList<int[]> real_hidden_pairs = new ArrayList<int[]>();
+				//ArrayList<int[]> real_hidden_pairs = new ArrayList<int[]>();
 				ArrayList<Integer> pairs = new ArrayList<Integer>();
 				for (int k = 0; k < 9; k += 1) {
 					if (occurancesb[k] == 2) {
@@ -318,7 +365,7 @@ public static void start() throws Exception {
 							}
 						}
 						if (together_twice == 2) {
-							real_hidden_pairs.add(pair);
+							//real_hidden_pairs.add(pair);
 							hiddenPairsTracker.add(pair);
 							locationTracker.add(-1);
 							locationTracker.add(box_i);
@@ -327,7 +374,7 @@ public static void start() throws Exception {
 							for (int i3 = box_i*3; i3 < box_i*3+3; i3+=1) {
 								for (int j3 =  box_j*3; j3 < box_j*3+3; j3+=1) {
 									if (board[i3][j3].containsPair(pair)){
-										System.out.println("Box: Overwriting "+board[i3][j3]+" with "+Arrays.toString(pair));
+										//System.out.println("Box: Overwriting "+board[i3][j3]+" with "+Arrays.toString(pair));
 										board[i3][j3].set(pair);
 									}
 								}
@@ -335,13 +382,13 @@ public static void start() throws Exception {
 						}
 					}
 				}
-				if (real_hidden_pairs.size() > 0) {
-					System.out.print("Following hiddenpairs are real for box "+box_i+", "+box_j+": ");
-					for (int[] pr:real_hidden_pairs) {
-						System.out.print(Arrays.toString(pr));
-					}
-					System.out.println();
-				}
+				//if (real_hidden_pairs.size() > 0) {
+				//	System.out.print("Following hiddenpairs are real for box "+box_i+", "+box_j+": ");
+				//	for (int[] pr:real_hidden_pairs) {
+				//		System.out.print(Arrays.toString(pr));
+				//	}
+				//	System.out.println();
+				//}
 			}
 		}
 		for (int k = 0; k < hiddenPairsTracker.size();k+=1) {
@@ -367,7 +414,7 @@ public static void start() throws Exception {
 					//	System.out.println(board[i2][i]+ " ");
 					//}
 					if (pairsi.contains(board[i2][i])) {
-						System.out.println("Found naked pair on column "+i+"! "+board[i2][i].toString());
+						//System.out.println("Found naked pair on column "+i+"! "+board[i2][i].toString());
 						pairsTracker.add(board[i2][i]);
 						locationTracker.add(0);
 						locationTracker.add(i);
@@ -419,7 +466,7 @@ public static void start() throws Exception {
 
 
 
-		System.out.println("Finishing pair search");
+		//System.out.println("Finishing pair search");
 	}
 
 
