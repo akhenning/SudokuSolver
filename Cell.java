@@ -57,4 +57,12 @@ public class Cell {
         }
         //System.out.println("Result: "+possibilities.toString());
     }
+
+    public boolean containsPair(int[] check) {
+        if (check.length != 2) {
+            System.out.println("Error: ContainsPair undefined usage");
+            return false;
+        }
+        return possibilities.contains(check[0]) && possibilities.contains(check[1]);
+    }
 }
