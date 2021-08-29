@@ -17,35 +17,95 @@ public class Solver {
 	 */
 
 	public static Cell board[][];
-	public static final int MAX_ITERATIONS = 10;
+	public static final int MAX_ITERATIONS = 12;
+	public static boolean exit_flag = false;
 
 	public static void main(String[] args) {
 
 		board = new Cell[9][9];
 		int[][][]all =  {
-		{{7},{6},{ },{ },{ },{2},{ },{ },{8}},
-		{{ },{ },{ },{6},{ },{ },{3},{ },{ }},
-		{{9},{ },{3},{ },{7},{ },{6},{ },{ }},
-		{{ },{ },{4},{ },{6},{ },{ },{ },{3}},
-		{{ },{1},{ },{ },{9},{ },{ },{7},{ }},
-		{{3},{ },{ },{ },{4},{ },{2},{ },{ }},
-		{{ },{ },{9},{ },{2},{ },{8},{ },{4}},
-		{{ },{ },{7},{ },{ },{4},{ },{ },{ }},
-		{{4},{ },{ },{8},{ },{ },{ },{3},{1}}};
+			{{ },{1},{6},{ },{ },{ },{ },{ },{5}},
+			{{ },{ },{4},{2},{ },{9},{ },{ },{8}},
+			{{ },{ },{ },{ },{1},{ },{ },{ },{ }},
+			{{ },{ },{7},{1},{ },{3},{ },{9},{2}},
+			{{ },{ },{ },{ },{ },{ },{ },{ },{ }},
+			{{9},{4},{ },{5},{ },{6},{3},{ },{ }},
+			{{ },{ },{ },{ },{5},{ },{ },{ },{ }},
+			{{6},{ },{ },{8},{ },{2},{7},{ },{ }},
+			{{4},{ },{ },{ },{ },{ },{1},{8},{ }}};
 		// {{-1},{-1},{-1},{-1},{-1},{-1},{-1},{-1},{-1}};
 		for (int i=0;i<9;i+=1) {
 			for (int j=0;j<9;j+=1) {
 				board[i][j] = new Cell(all[i][j]);
 			}
 		}
+		boolean result = false;
 		try {
-			start();
+			result = start();
 		} catch (Exception e) {
 			System.out.println(e);
+			result = true;
 		}
-		//int[] cheat = {2};
-		//board[7][7].set(cheat);
-		//start();
+		if (!result) {
+			Cell[][] backup = new Cell[9][9];
+			for (int i = 0; i < 9; i += 1) {
+				for (int j = 0; j < 9; j += 1) {
+					backup[i][j] = new Cell(board[i][j].toArray());
+				}
+			}
+
+			System.out.println("USING BRUTE FORCE!");
+			int attempt = 1;
+			for (int i = 0; i < 9; i += 1) {
+				for (int j = 0; j < 9; j += 1) {
+					if (board[i][j].length() == 2) {
+						int[] cheat = {board[i][j].possibilities.get(attempt)};
+						board[i][j].set(cheat);
+						attempt -= 1;
+						i=10;
+						j=10;
+					}
+				}
+			}
+			try {
+				result = start();
+				if (result) {
+					return;
+				} else {
+					System.out.println("First attempt at brute force failed.");
+				}
+			} catch (Exception e) {
+				System.out.println("First attempt at brute force failed.");
+			}
+			
+			for (int i = 0; i < 9; i += 1) {
+				for (int j = 0; j < 9; j += 1) {
+					board[i][j] = new Cell(backup[i][j].toArray());
+				}
+			}
+			//System.out.println(printStr());
+			for (int i = 0; i < 9; i += 1) {
+				for (int j = 0; j < 9; j += 1) {
+					if (board[i][j].length() == 2) {
+						int[] cheat = {board[i][j].possibilities.get(attempt)};
+						board[i][j].set(cheat);
+						i=10;
+						j=10;
+					}
+				}
+			}
+			try {
+				result = start();
+				if (result) {
+					return;
+				}
+			} catch (Exception e) {
+				result = false;
+			}
+			if (result = false) {
+				System.out.println("Simple one-step brute force has either failed or is not enough.");
+			}
+		}
 	}
 
 public static String printStr() {
@@ -60,7 +120,7 @@ public static String printStr() {
 	return current;
 }
 	
-public static void start() throws Exception {
+public static boolean start() throws Exception {
 	
 		String last = "last";
 		String current = "";
@@ -77,21 +137,23 @@ public static void start() throws Exception {
 			simple_all();
 			simple_all();
 			simple_fill();
+			simple_all();
+			simple_fill();
 			current = printStr();
 			c+=1;
-			System.out.println(current);
 		}
+		System.out.println(current);
 		if (c>=MAX_ITERATIONS) {
 			System.out.println("Emergency quit after "+c+" iterations.");
 		} else {
 			System.out.println("Exited properly due to stagnation after "+c+" iterations.");
 		}
 
-		check();
+		return check();
 	}
 
 	public static void simple_fill() {
-		System.out.println("Checking for lone values");
+		//System.out.println("Checking for lone values");
 		for (int i = 0; i < 9; i+=1) {
 			int[] occurancesi = {0,0,0,0,0,0,0,0,0};
 			for (int i2 = 0; i2 < 9; i2+=1) {
@@ -220,7 +282,7 @@ public static void start() throws Exception {
 
 	// Checks for hidden and naked pairs
 	public static void pairs_all() {
-		System.out.println("Checking for hidden and naked pairs");
+		//System.out.println("Checking for hidden and naked pairs");
 		// -------- hidden pairs now
 		
 		ArrayList<int[]> hiddenPairsTracker = new ArrayList<int[]>();
@@ -505,7 +567,7 @@ public static void start() throws Exception {
 	}
 
     public static void simple_all() throws Exception {
-		System.out.println("Using basic scan strategy");
+		//System.out.println("Using basic scan strategy");
 		for (int i = 0; i < 9; i+=1) {
 			for (int j = 0; j < 9; j+=1) {
 				if (board[i][j].length() != 1) {
@@ -660,6 +722,35 @@ public static void start() throws Exception {
 		{{4},{ },{ },{ },{ },{ },{2},{ },{ }},
 		{{7},{1},{ },{3},{2},{ },{6},{8},{ }},
 		{{ },{3},{ },{8},{4},{ },{ },{1},{ }}};
+
+		
+		{{7},{6},{ },{ },{ },{2},{ },{ },{8}},
+		{{ },{ },{ },{6},{ },{ },{3},{ },{ }},
+		{{9},{ },{3},{ },{7},{ },{6},{ },{ }},
+		{{ },{ },{4},{ },{6},{ },{ },{ },{3}},
+		{{ },{1},{ },{ },{9},{ },{ },{7},{ }},
+		{{3},{ },{ },{ },{4},{ },{2},{ },{ }},
+		{{ },{ },{9},{ },{2},{ },{8},{ },{4}},
+		{{ },{ },{7},{ },{ },{4},{ },{ },{ }},
+		{{4},{ },{ },{8},{ },{ },{ },{3},{1}}};
+
+		https://www.websudoku.com/?level=4&set_id=5280580690 (hardest)
  */
 
  // https://www.websudoku.com/?level=1&set_id=7876016013
+
+
+
+ /**
+
+  [7]           | [1]           | [6]           | [3]           | [8]           | [4]           | [9]           | [2]           | [5]           |
+  [3]           | [5]           | [4]           | [2]           | [7]           | [9]           | [6]           | [1]           | [8]           |
+  [2]           | [8]           | [9]           | [6]           | [1]           | [5]           | [4]           | [3]           | [7]           |
+  [5]           | [6]           | [7]           | [1]           | [4]           | [3]           | [8]           | [9]           | [2]           |
+  [1]           | [3]           | [2]           | [7]           | [9]           | [8]           | [5]           | [4]           | [6]           |
+  [9]           | [4]           | [8]           | [5]           | [2]           | [6]           | [3]           | [7]           | [1]           |
+  [8]           | [7]           | [3]           | [4]           | [5]           | [1]           | [2]           | [6]           | [9]           |
+  [6]           | [9]           | [1]           | [8]           | [3]           | [2]           | [7]           | [5]           | [4]           |
+  [4]           | [2]           | [5]           | [9]           | [6]           | [7]           | [1]           | [8]           | [3]           |
+
+ */

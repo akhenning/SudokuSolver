@@ -75,4 +75,12 @@ public class Cell {
         //System.out.println("Result: "+possibilities.contains(check[0])+" and "+ possibilities.contains(check[1]));
         return possibilities.contains(check[0]) && possibilities.contains(check[1]);
     }
+
+    public int[] toArray() {
+        int[] rtrn = new int[possibilities.size()];
+        for (int i = 0; i < possibilities.size(); i+=1) {
+            rtrn[i] = possibilities.get(i);
+        }
+        return rtrn;
+    }
 }
