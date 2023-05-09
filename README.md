@@ -1,6 +1,9 @@
 # SudokuSolver
+Made a few years ago, didn't set to public for some reason
  
 Requires you to type the input in and out manually, unfortunately. Didn't really want to hook up OCR functionality. Would have been a pain to tell it where to look.
+
+No dependencies. Not commented, though output is fairly verbose I think.
 
 Only cheats a little by guessing ONCE if it can't find a solution with the programmed techniques. And tells you when it does.
 Can solve almost all sudoku puzzles without that feature, though! And can solve practically any of them with it.
